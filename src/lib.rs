@@ -1,15 +1,24 @@
 #![forbid(unsafe_code)]
-#![cfg_attr(not(debug_assertions), deny(warnings))] // Forbid warnings in release builds
 #![warn(clippy::all, rust_2018_idioms)]
 
 mod app;
+
 pub use app::TemplateApp;
+
+pub static RT: Lazy<Runtime> = Lazy::new(||{
+   tokio::runtime::Builder::new_multi_thread()
+       .enable_all()
+       .build()
+       .unwrap()
+});
 
 // ----------------------------------------------------------------------------
 // When compiling for web:
 
 #[cfg(target_arch = "wasm32")]
 use eframe::wasm_bindgen::{self, prelude::*};
+use once_cell::sync::Lazy;
+use tokio::runtime::Runtime;
 
 /// This is the entry-point for all the web-assembly.
 /// This is called once from the HTML.
